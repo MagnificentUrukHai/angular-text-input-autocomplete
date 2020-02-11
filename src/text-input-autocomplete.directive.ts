@@ -35,6 +35,11 @@ export class TextInputAutocompleteDirective implements OnDestroy {
   @Input() triggerCharacter = '@';
 
   /**
+   * Whether to show hints on every keystroke
+   */
+  @Input() showOnEveryKeystroke = false;
+
+  /**
    * The regular expression that will match the search text after the trigger character
    */
   @Input() searchRegexp = /^\w*$/;
@@ -95,7 +100,7 @@ export class TextInputAutocompleteDirective implements OnDestroy {
 
   @HostListener('keypress', ['$event.key'])
   onKeypress(key: string) {
-    if (key === this.triggerCharacter) {
+    if (this.showOnEveryKeystroke || key === this.triggerCharacter) {
       this.showMenu();
     }
   }
@@ -103,7 +108,10 @@ export class TextInputAutocompleteDirective implements OnDestroy {
   @HostListener('input', ['$event.target.value'])
   onChange(value: string) {
     if (this.menu) {
-      if (value[this.menu.triggerCharacterPosition] !== this.triggerCharacter) {
+      if (
+        value[this.menu.triggerCharacterPosition] !== this.triggerCharacter &&
+        !this.showOnEveryKeystroke
+      ) {
         this.hideMenu();
       } else {
         const cursor = this.elm.nativeElement.selectionStart;
